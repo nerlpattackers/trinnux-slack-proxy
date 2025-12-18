@@ -1,0 +1,35 @@
+{
+  "name": "trinnux-slack-proxy",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "node slack-proxy.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "express-rate-limit": "^7.5.0"
+  }
+}
+
+// {
+//   "name": "test-api",
+//   "version": "1.0.0",
+//   "type": "module",
+//   "main": "slack-proxy.js",
+//   "scripts": {
+//     "start": "node slack-proxy.js"
+//   },
+//   "dependencies": {
+//     "cors": "^2.8.5",
+//     "dotenv": "^17.2.3",
+//     "express": "^5.2.1",
+//     "express-rate-limit": "^8.2.1",
+//     "form-data": "^4.0.5",
+//     "multer": "^2.0.2",
+//     "node-fetch": "^3.3.2",
+//     "undici": "^7.16.0"
+//   }
+// }
