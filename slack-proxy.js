@@ -9,17 +9,21 @@ const app = express();
    Middleware
 ====================== */
 
-// Allow localhost (dev) + Railway UAT
+// Explicitly allow UAT frontend + localhost
 app.use(
   cors({
     origin: [
       "http://localhost:5173",
-      "https://*.up.railway.app",
+      "https://trinnux-website-uat-production.up.railway.app"
     ],
-    methods: ["POST", "GET"],
+    methods: ["GET", "POST", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: false
   })
 );
+
+// Handle preflight requests (IMPORTANT)
+app.options("*", cors());
 
 // Parse JSON body
 app.use(express.json());
