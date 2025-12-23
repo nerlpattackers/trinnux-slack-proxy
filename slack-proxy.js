@@ -14,15 +14,15 @@ app.use(
   cors({
     origin: [
       "http://localhost:5173",
-      "https://trinnux-website-uat-production.up.railway.app"
+      "https://trinnux-website-uat-production.up.railway.app",
     ],
     methods: ["GET", "POST", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
-    credentials: false
+    credentials: false,
   })
 );
 
-// Handle preflight requests (IMPORTANT)
+// Handle preflight requests
 app.options("*", cors());
 
 // Parse JSON body
@@ -50,12 +50,11 @@ app.get("/", (req, res) => {
 });
 
 /* ======================
-   Slack – CTA Submit
+   Slack – Contact CTA Submit
 ====================== */
 app.post("/contact-submit", contactLimiter, async (req, res) => {
   const { name, email, phone, company, message } = req.body;
 
-  // Validate required fields
   if (!name || !email || !message) {
     return res.status(400).json({
       ok: false,
@@ -116,7 +115,7 @@ app.post("/contact-submit", contactLimiter, async (req, res) => {
     );
 
     const result = await slackResponse.json();
-    console.log("📨 Slack message result:", result);
+    console.log("📨 Contact CTA Slack result:", result);
 
     if (!result.ok) {
       return res.status(500).json({
@@ -128,6 +127,90 @@ app.post("/contact-submit", contactLimiter, async (req, res) => {
     return res.json({ ok: true });
   } catch (err) {
     console.error("Slack CTA Error:", err);
+    return res.status(500).json({
+      ok: false,
+      error: "Internal server error",
+    });
+  }
+});
+
+/* ======================
+   Slack – Get Quote Submit
+====================== */
+app.post("/quote-submit", contactLimiter, async (req, res) => {
+  const { name, email, company, message } = req.body;
+
+  if (!name || !email || !message) {
+    return res.status(400).json({
+      ok: false,
+      error: "Missing required fields.",
+    });
+  }
+
+  const payload = {
+    channel: process.env.SLACK_CHANNEL_ID,
+    text: "New Get Quote Request",
+    blocks: [
+      {
+        type: "header",
+        text: {
+          type: "plain_text",
+          text: "💼 New Get Quote Request",
+        },
+      },
+      {
+        type: "section",
+        fields: [
+          { type: "mrkdwn", text: `*Name:*\n${name}` },
+          { type: "mrkdwn", text: `*Email:*\n${email}` },
+          { type: "mrkdwn", text: `*Company:*\n${company || "—"}` },
+        ],
+      },
+      {
+        type: "section",
+        text: {
+          type: "mrkdwn",
+          text: `*Project Details:*\n${message}`,
+        },
+      },
+      {
+        type: "context",
+        elements: [
+          {
+            type: "mrkdwn",
+            text: `📄 Source: *Get Quote Form (UAT)* • ${new Date().toLocaleString()}`,
+          },
+        ],
+      },
+    ],
+  };
+
+  try {
+    const slackResponse = await fetch(
+      "https://slack.com/api/chat.postMessage",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${process.env.SLACK_BOT_TOKEN}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      }
+    );
+
+    const result = await slackResponse.json();
+    console.log("💼 Quote Slack result:", result);
+
+    if (!result.ok) {
+      return res.status(500).json({
+        ok: false,
+        error: "Slack message failed",
+      });
+    }
+
+    return res.json({ ok: true });
+  } catch (err) {
+    console.error("Slack Quote Error:", err);
     return res.status(500).json({
       ok: false,
       error: "Internal server error",
