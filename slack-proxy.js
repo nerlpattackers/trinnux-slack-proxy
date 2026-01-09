@@ -15,6 +15,7 @@ app.use(
     origin: [
       "http://localhost:5173",
       "https://trinnux-website-uat-production.up.railway.app",
+      "https://trinnux.com/",
     ],
     methods: ["GET", "POST", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
